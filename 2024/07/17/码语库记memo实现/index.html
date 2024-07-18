@@ -28,7 +28,7 @@
 <meta property="og:image" content="https://pic.imgdb.cn/item/6697725fd9c307b7e9065a8f.png">
 <meta property="og:image" content="https://pic.imgdb.cn/item/66977270d9c307b7e9068b9a.png">
 <meta property="article:published_time" content="2024-07-17T02:18:00.000Z">
-<meta property="article:modified_time" content="2024-07-17T09:05:09.654Z">
+<meta property="article:modified_time" content="2024-07-18T09:23:21.001Z">
 <meta property="article:author" content="xiaowumin">
 <meta property="article:tag" content="码语库记">
 <meta name="twitter:card" content="summary_large_image">
@@ -237,7 +237,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          493 字
+          745 字
         
       </span>
     
@@ -248,7 +248,7 @@
         
         
         
-          5 分钟
+          7 分钟
         
       </span>
     
@@ -317,6 +317,22 @@
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript">router.<span class="hljs-title function_">isReady</span>().<span class="hljs-title function_">then</span>(<span class="hljs-function">() =&gt;</span> app.<span class="hljs-title function_">mount</span>(<span class="hljs-string">&#x27;#app&#x27;</span>))<br></code></pre></td></tr></table></figure>
 
 <p>也是服了，整天跟bug斗智斗勇。。。。</p>
+<h3 id="设置同步功能"><a href="#设置同步功能" class="headerlink" title="设置同步功能"></a>设置同步功能</h3><p>测试的时候想到一个问题</p>
+<p>当在主页更改主题后，便签的主题不会立马变化</p>
+<p>所以我打算用浏览器的便签页通信功能<code>BroadcastChannel</code>，这是具体文档-&gt;<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/API/BroadcastChannel">BroadcastChannel</a></p>
+<p>写到这里发现主页的主题切换有过渡，但是便签没有，有点不统一</p>
+<p>写到这里的时候，我的脑子里突然冒出一个点子</p>
+<p>是不是可以为多个窗口添加动画效果，就是当更改主题后，其他窗口可以接力主窗口的动画</p>
+<p>只需获取鼠标位置和窗口位置，再加上一点点小动画，具体是这么算的 ↓</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">let</span> x = 鼠标.<span class="hljs-property">x</span> - 窗口.<span class="hljs-property">x</span><br><span class="hljs-keyword">let</span> y = 鼠标.<span class="hljs-property">y</span> - 窗口.<span class="hljs-property">y</span><br><span class="hljs-comment">// 后面减去一些，可以做一个矫正，因为可能不准</span><br></code></pre></td></tr></table></figure>
+
+
+
+<p>于是就得到了遥遥领先于同行的主题切换效果，请看VCR：</p>
+<p>有些不同步，是鼠标位置计算不准，后面会优化滴~</p>
+<video src="/static/17-14-59.mp4" controls="controls" width="100%">
+
+
 
                 
               </div>
