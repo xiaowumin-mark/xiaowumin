@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>倒计时网页</title>
+    <script src="../static/msg.js"></script>
+    <style>
+        /* 全屏背景渐变效果 */
+        body {
+            background: linear-gradient(to bottom, #000000, #333333);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        /* 倒计时时钟样式 */
+        #countdown-label {
+            font-size: 24px;
+        }
+
+        #countdown {
+            font-size: 48px;
+        }
+
+        /* 祝福语句动画效果 */
+        #message {
+            opacity: 0;
+            animation: fade-in 2s forwards;
+        }
+
+        @keyframes fade-in {
+            0% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* 输入框和按钮样式 */
+        #input-box {
+            margin-top: 20px;
+        }
+
+        #calculate-btn {
+            margin-top: 10px;
+            padding: 5px 10px;
+        }
+
+        /* 下雪背景效果 */
+        #snow-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .snowflake {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            opacity: 0.8;
+            pointer-events: none;
+            animation: snowfall linear infinite;
+        }
+
+        @keyframes snowfall {
+            0% {
+                transform: translateY(-100%);
+            }
+
+            100% {
+                transform: translateY(100vh);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 距离高考还剩 -->
+    <div id="countdown-label">距离高考还剩</div>
+
+    <!-- 倒计时时钟 -->
+    <div id="countdown"></div>
+
+    <!-- 祝福语句 -->
+    <div id="message">
+        Best wishes!
+    </div>
+
+    <!-- 输入框和计算按钮 -->
+    <div id="input-box">
+        <input type="text" id="college-input" placeholder="请输入想考入的院校">
+        <button id="calculate-btn">计算</button>
+    </div>
+
+    <!-- 下雪背景效果 -->
+    <div id="snow-container"></div>
+    <p style="position: fixed;bottom: 10px;text-align: center;">此页面由 <a style="color: yellow;" href="/">xiaowumin</a>
+        从 <a style="color: yellow;" href="https://www.csdn.net/">SCDN</a> copy来的👍👍</p>
+    <script>
+        const msg = Msg_init();
+        // 更新倒计时时钟
+        function updateCountdown() {
+            var now = new Date();
+            var targetDate = new Date("2027-6-7 9:00");
+            var timeDiff = targetDate.getTime() - now.getTime();
+
+            var days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+            var countdownLabelElement = document.getElementById("countdown-label");
+            countdownLabelElement.textContent = "距离高考还剩";
+
+            var countdownElement = document.getElementById("countdown");
+            countdownElement.textContent = days + "天 " + hours + "小时 " + minutes + "分钟 " + seconds + "秒";
+        }
+
+        // 每秒钟更新倒计时时钟
+        setInterval(updateCountdown, 1000);
+
+        // 设置考中几率为100%
+        document.getElementById("calculate-btn").addEventListener("click", function () {
+            var collegeInput = document.getElementById("college-input").value;
+            if (collegeInput === "") {
+                msg.addMsg({
+                    type: "error",
+                    text: "这孩子没救了。😒😒"
+                })
+                return
+            } else if (collegeInput == "114514") {
+                msg.addMsg({
+                    type: "error",
+                    text: "挖掘机技术哪家强，中国山东找蓝翔!"
+                })
+                return
+            } else if (collegeInput == "YYDS" || collegeInput == "yyds") {
+                msg.addMsg({
+                    type: "success",
+                    text: "所有人都100%可以考入自己心仪的大学！"
+                })
+            } else if (!collegeInput.includes("大")) {
+                msg.addMsg({
+                    type: "error",
+                    text: "这是啥学校？我咋没听过。。。😒😒"
+                })
+                return
+            } else if (collegeInput.length > 6 && collegeInput.length < 20) {
+                msg.addMsg({
+                    type: "success",
+                    text: "wow！这学校名字好长，应该是所高校吧。👍👍"
+                })
+
+            } else if (collegeInput.length >= 20) {
+                msg.addMsg({
+                    type: "error",
+                    text: "wow！这学校名字好长，都打破国内的记录了。。。😒😒"
+                })
+                return
+            }
+
+
+            // 包含“大”，“大学”
+
+
+
+            var resultElement = document.createElement("div");
+            resultElement.textContent = "您考入 " + collegeInput + " 的几率为 100%！";
+            resultElement.style.color = 'red';
+            document.body.appendChild(resultElement);
+            setTimeout(() => {
+                resultElement.remove();
+            }, 2000)
+        });
+
+        // 下雪背景效果
+        function createSnowflake() {
+            const snowflake = document.createElement('div');
+            snowflake.classList.add('snowflake');
+            snowflake.style.left = Math.random() * window.innerWidth + 'px';
+            snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
+            snowflake.style.opacity = Math.random();
+            snowflake.style.fontSize = Math.random() * 10 + 10 + 'px';
+
+            const randomColor = getRandomColor();
+            snowflake.style.backgroundColor = randomColor;
+
+            const slogans = ["高考加油", "金榜题名", "考满分", "耀眼的未来", "考试顺利", "攀登高峰", "梦想成真", "勇往直前", "努力拼搏"]; // Add your slogans here
+            snowflake.innerHTML = slogans[Math.floor(Math.random() * slogans.length)];
+
+            return snowflake;
+        }
+
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        function snowfall() {
+            const snowContainer = document.getElementById('snow-container');
+            const numSnowflakes = 50; // Adjust the number of snowflakes here
+
+            for (let i = 0; i < numSnowflakes; i++) {
+                const snowflake = createSnowflake();
+                snowContainer.appendChild(snowflake);
+            }
+        }
+
+        snowfall();
+    </script>
+</body>
+
+</html>
