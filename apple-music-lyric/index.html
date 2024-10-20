@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #826849;
+            width: 100vw;
+        }
+
+        .lrc {
+            width: 100%;
+            height: 100vh;
+            overflow-y: auto;
+            position: relative;
+            overflow-x: hidden;
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
+
+        }
+
+        .lrc p {
+            position: absolute;
+            margin: 0;
+            padding: 10px;
+            box-sizing: border-box;
+            padding-bottom: 20px;
+            color: rgba(255, 255, 255, .25);
+            transition: color 0.5s, top 0.6s, transform 0.5s;
+            font-weight: 700;
+            transform-origin: left center;
+
+
+        }
+    </style>
+</head>
+
+<body>
+    <div class="lrc">
+
+    </div>
+
+</body>
+<script>
+    class LyricSync {
+        constructor(lrcContainerSelector, audioSrc, lyricsText, style = {
+            fontSize: 40,
+            ifBlur: true,
+            ifTrainsion: true,
+            scale: 1.2,
+            interval: 10,
+            ifInner: false,
+            animateionOffsetTime: 5
+
+        }) {
+            this.lrcContainer = document.querySelector(lrcContainerSelector);
+            this.audio = new Audio(audioSrc);
+            this.lyricsText = lyricsText;
+            this.lrcList = [];
+            this.offsetH = 90;
+            this.lastLrc = -1;
+            this.style = style;
+            this.init();
+        }
+
+        init() {
+            this.lrcList = this.parseLrc(this.lyricsText);
+            for (let i = 0; i < this.lrcList.length; i++) {
+                this.lrcContainer.appendChild(this.lrcList[i].dom);
+            }
+            this.nextLrc(0, this.lrcList, true);
+
+            this.audio.addEventListener('timeupdate', () => this.updateLrc());
+            // 这里可以删掉 ----------------------------------------------------------------------------------------
+            document.body.addEventListener('click', () => {
+                if (this.audio.paused) {
+                    this.audio.play();
+                } else {
+                    this.audio.pause();
+                }
+            });
+            // ----------------------------------------------------------------------------------------
+        }
+
+        parseLrc(text) {
+            let arr = text.split('\n');
+            let res = [];
+            for (let i = 0; i < arr.length; i++) {
+                arr[i] = arr[i].substring(1);
+                let arrTL = arr[i].split(']');
+                let arrTime = arrTL[0].split(':');
+                let doTime = arrTime[1].split('.');
+                const p = document.createElement('p');
+                p.innerText = arrTL[1];
+                p.style.fontSize = this.style.fontSize + 'px';
+                p.style.paddingBottom = this.style.interval + 'px';
+                res.push({
+                    time: (Number(arrTime[0]) * 60 * 1000) + (Number(doTime[0]) * 1000) + Number(doTime[1]),
+                    lrc: arrTL[1],
+                    index: i,
+                    dom: p
+                });
+            }
+            return res;
+        }
+
+        nextLrc(i = 0, data, isinit = false) {
+            if (isinit) {
+                for (let j = 0; j < data.length; j++) {
+                    data[j].dom.style.top = this.getTopHeight(i, j, data) + 'px';
+                }
+                return;
+            }
+            for (let j = 0; j < data.length; j++) {
+                if (this.style.ifBlur) {
+                    data[j].dom.style.filter = `blur(${Math.abs(j - i)}px)`
+                }
+                data[j].dom.style.color = (i === j) ? 'rgba(255, 255, 255, 1)' : 'rgba(255, 255, 255, .25)';
+                data[j].dom.style.transform = (i === j) ? 'scale(' + this.style.scale + ')' : 'scale(1)';
+
+                const n = Math.abs(j - i)
+                const ah = n * 70 - n * this.style.animateionOffsetTime
+                //console.log(n, ah);
+
+                if (i < j && this.style.ifTrainsion) {
+
+                    if (this.style.ifInner) {
+                        if (this.isElementVisible(data[j].dom)) {
+                            setTimeout(() => {
+                                window.requestAnimationFrame(() => {
+                                    data[j].dom.style.top = this.getTopHeight(i, j, data) + 'px';
+                                });
+                            }, ah);
+                        } else {
+                            data[j].dom.style.top = this.getTopHeight(i, j, data) + 'px';
+                        }
+                    } else {
+                        setTimeout(() => {
+                            window.requestAnimationFrame(() => {
+                                data[j].dom.style.top = this.getTopHeight(i, j, data) + 'px';
+                            });
+                        }, ah);
+                    }
+
+
+                } else {
+                    data[j].dom.style.top = this.getTopHeight(i, j, data) + 'px';
+                }
+            }
+        }
+
+        getTopHeight(now, to, data) {
+            let res = 0;
+            for (let i = now; i < to; i++) {
+                res += data[i].dom.offsetHeight;
+            }
+            for (let i = now; i > to; i--) {
+                res -= data[i].dom.offsetHeight;
+            }
+            return res + this.offsetH;
+        }
+
+        updateLrc() {
+            const cTime = this.audio.currentTime * 1000;
+            let lList = [];
+            for (let i = 0; i < this.lrcList.length; i++) {
+                if (cTime >= this.lrcList[i].time) {
+                    lList.push(this.lrcList[i]);
+                }
+            }
+            if (lList.length === 0) return;
+            if (this.lastLrc !== lList[lList.length - 1].index) {
+                this.nextLrc(lList[lList.length - 1].index, this.lrcList);
+                this.lastLrc = lList[lList.length - 1].index;
+            }
+        }
+
+        isElementVisible(el) {
+            const rect = el.getBoundingClientRect()
+            const vWidth = window.innerWidth || document.documentElement.clientWidth
+            const vHeight = window.innerHeight || document.documentElement.clientHeight
+
+
+            if (
+                rect.right < 0 ||
+                rect.bottom < 0 ||
+                rect.left > vWidth ||
+                rect.top > vHeight
+            ) {
+                return false
+            }
+
+            return true
+        }
+    }
+
+    // 歌词
+    const lyricsText = `[00:00.15]See You Again - Wiz Khalifa
+[00:10.74]It's been a long day without you my friend
+[00:17.70]And I'll tell you all about it when I see you again
+[00:23.50]We've come a long way from where we began
+[00:29.38]Oh I'll tell you all about it when I see you again
+[00:35.40]When I see you again
+[00:40.22]Damn who knew all the planes we flew
+[00:43.20]Good things we've been through
+[00:44.91]That I'll be standing right here
+[00:46.63]Talking to you about another path
+[00:49.05]I know we loved to hit the road and laugh
+[00:51.32]But something told me that it wouldn't last
+[00:53.69]Had to switch up look at things different see the bigger picture
+[00:57.40]Those were the days hard work forever pays
+[01:00.59]Now I see you in a better place
+[01:05.32]How could we not talk about family when family's all that we got?
+[01:08.96]Everything I went through you were standing there by my side
+[01:11.86]And now you gonna be with me for the last ride
+[01:14.06]It's been a long day without you my friend
+[01:20.63]And I'll tell you all about it when I see you again
+[01:26.50]We've come a long way from where we began
+[01:32.45]Oh I'll tell you all about it when I see you again
+[01:38.47]When I see you again
+[01:56.53]First you both go out your way
+[01:58.05]And the vibe is feeling strong and what's
+[01:59.96]Small turn to a friendship a friendship
+[02:01.84]Turn into a bond and that bond will never
+[02:03.69]Be broke and the love will never get lost
+[02:08.53]And when brotherhood come first then the line
+[02:10.61]Will never be crossed established it on our own
+[02:13.03]When that line had to be drawn and that line is what
+[02:15.63]We reach so remember me when I'm gone
+[02:20.26]How could we not talk about family when family's all that we got?
+[02:23.90]Everything I went through you were standing there by my side
+[02:26.85]And now you gonna be with me for the last ride
+[02:29.38]Let the light guide your way hold every memory
+[02:38.34]As you go and every road you take will always lead you home
+[02:49.49]Hoo
+[02:52.95]It's been a long day without you my friend
+[02:59.62]And I'll tell you all about it when I see you again
+[03:05.52]We've come a long way from where we began
+[03:11.43]Oh I'll tell you all about it when I see you again
+[03:17.28]When I see you again
+[03:22.96]Again
+[03:29.35]When I see you again see you again
+[03:41.32]When I see you again`;
+
+    const lyricSync = new LyricSync('.lrc', './see-you-again.mp3', lyricsText, {
+        ifTrainsion: true, // 是否使用弹簧动画
+        ifBlur: true, // 是否使用模糊效果
+        scale: 1.1, // 当前歌词的缩放比例
+        fontSize: 40, // 歌词的字体大小
+        interval: 30, // 歌词的行间距
+        ifInner: false, // 是否只在可见范围内播放动画，这样会减少卡顿，但是观感会差一些
+        animateionOffsetTime: 50 // 动画偏移时间，越小越平滑，但是不能超过 lyricSync.offsetH 否则会出问题
+    });
+</script>
+
+</html>
