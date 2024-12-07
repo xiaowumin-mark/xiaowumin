@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        #app {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 0 20px;
+        }
+
+        .top {
+
+            width: 100%;
+            height: 20vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 60px;
+        }
+
+        .top span {
+            transition: all 0.3s;
+
+        }
+
+        .buttom {
+            width: 100%;
+            height: 40vh;
+            margin-top: 30px;
+        }
+
+
+
+        .top .item {
+            width: 100%;
+            height: 80px;
+            background-color: yellow;
+            margin-top: 10px;
+        }
+
+        .buttom mdui-button {
+            float: left;
+            width: calc(33.333% - 10px);
+        }
+
+        .buttom mdui-button:last-child {
+            margin-left: calc(33.333% + 5px);
+        }
+
+        .buttom mdui-button {
+            padding-top: 20px;
+            padding-bottom: 20px;
+            font-size: 20px;
+            margin: 5px;
+            border-radius: 5px;
+            height: 80px;
+        }
+
+        .center {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+  <script type="module" crossorigin src="/assets/index-9HL2yQ0W.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-Bz2nhsJs.css">
+</head>
+<div id="app">
+    <div style="width: 100%;">
+        <mdui-card class="top" id="view">
+        </mdui-card>
+        <div class="center">
+            使用时间：<span id="timeD">--:--</span>
+            <mdui-radio-group value="order" id="group">
+                <mdui-radio value="order">顺序模式</mdui-radio>
+                <mdui-radio value="random">随机模式</mdui-radio>
+            </mdui-radio-group>
+        </div>
+        <div class="buttom" id="bottom">
+        </div>
+    </div>
+
+    <mdui-dialog close-on-overlay-click headline="失败 详细记录" id="detail" fullscreen >
+        <p>总用时:<span id="alltime"></span>&nbsp;按键平均用时:<span id="pjtime"></span></p>
+        <mdui-list id="showdata"></mdui-list>
+        <mdui-button slot="action" variant="text" id="tryagain" onclick="window.location.reload()">再来一次</mdui-button>
+        <mdui-button slot="action" variant="tonal" id="yes" onclick="window.location.reload()">确定</mdui-button>
+    </mdui-dialog>
+    <a href="https://github.com/xiaowumin-mark" target="_blank" style="position: fixed;bottom: 10px;text-align: center;">MADE BY XIAOWUMIN</a>
+</div>
+
+<body>
+</body>
+
+</html>
